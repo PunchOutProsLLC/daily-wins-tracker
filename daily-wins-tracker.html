@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Wins Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+}
+
+    body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #ffffff;
+              color: #1F2937;
+}
+
+    .header {
+            background-color: #1F2937;
+      color: #ffffff;
+            padding: 32px 24px;
+      border-bottom: 1px solid #E5E7EB;
+        }
+
+    .header-content {
+              max-width: 1200px;
+      margin: 0 auto;
+}
+
+    .header h1 {
+            font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+}
+
+    .header p {
+            font-size: 14px;
+      color: #D1D5DB;
+      }
+
+    .container {
+            max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+}
+
+    .form-section {
+            background-color: #F3F4F6;
+            border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 32px;
+}
+
+    .form-section h2 {
+            font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1F2937;
+}
+
+    .form-row {
+            display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+}
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+            display: flex;
+      flex-direction: column;
+}
+
+    .form-group label {
+            font-size: 12px;
+      font-weight: 600;
+      color: #6B7280;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+}
+
+    .form-group input,
+          .form-group select,
+          .form-group textarea {
+            padding: 8px 12px;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+}
+
+    .form-group textarea {
+            min-height: 60px;
+      resize: vertical;
+      padding: 10px 12px;
+}
+
+    .btn {
+            display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background-color: #1F2937;
+      color: #ffffff;
+            border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+}
+
+    .btn:hover {
+            background-color: #111827;
+}
+
+    .btn-secondary {
+            background-color: transparent;
+      color: #6B7280;
+      padding: 8px 16px;
+      border-radius: 6px;
+}
+
+    .btn-secondary:hover {
+            background-color: #F3F4F6;
+      }
+
+    .btn-delete {
+            background-color: transparent;
+      color: #D1D5DB;
+            padding: 4px;
+      border: none;
+}
+
+    .btn-delete:hover {
+            color: #EF4444;
+      }
+
+          .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #E5E7EB;
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+            padding: 8px 16px;
+      background-color: transparent;
+      color: #6B7280;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+}
+
+    .tab-btn.active {
+      background-color: #1F2937;
+      color: #ffffff;
+      }
+
+    .tab-btn:hover:not(.active) {
+      background-color: #F3F4F6;
+        }
+
+    .entry-card {
+              display: flex;
+      gap: 12px;
+      padding: 12px;
+      background-color: #F9FAFB;
+              border-left: 4px solid;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .entry-card.operations { border-left-color: #2C5282; }
+    .entry-card.vendor { border-left-color: #744210; }
+    .entry-card.projects { border-left-color: #234E52; }
+    .entry-card.executive { border-left-color: #5A3A62; }
+    .entry-card.systems { border-left-color: #38542D; }
+
+    .entry-content {
+            flex: 1;
+      min-width: 0;
+}
+
+    .entry-category {
+            font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+}
+
+    .entry-card.operations .entry-category { color: #2C5282; }
+    .entry-card.vendor .entry-category { color: #744210; }
+    .entry-card.projects .entry-category { color: #234E52; }
+    .entry-card.executive .entry-category { color: #5A3A62; }
+    .entry-card.systems .entry-category { color: #38542D; }
+
+          .entry-description {
+            font-size: 14px;
+      color: #1F2937;
+      margin-bottom: 6px;
+      line-height: 1.4;
+}
+
+    .entry-impact {
+            font-size: 13px;
+      color: #6B7280;
+      font-style: italic;
+}
+
+    .date-label {
+            font-size: 12px;
+      font-weight: 600;
+      color: #6B7280;
+      margin-top: 16px;
+      margin-bottom: 8px;
+}
+
+    .week-header {
+            width: 100%;
+      text-align: left;
+      padding: 12px;
+      background-color: #F3F4F6;
+              border: 1px solid #E5E7EB;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1F2937;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+}
+
+    .week-header:hover {
+            background-color: #E5E7EB;
+      }
+
+    .week-content {
+            padding-top: 12px;
+}
+
+    .stats-grid {
+            display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+      }
+
+    .stat-card {
+            padding: 20px;
+      background-color: #F3F4F6;
+              border-radius: 8px;
+      border: 1px solid #E5E7EB;
+        }
+
+    .stat-card.category {
+      border-left: 4px solid;
+      }
+
+    .stat-card.operations { border-left-color: #2C5282; }
+    .stat-card.vendor { border-left-color: #744210; }
+    .stat-card.projects { border-left-color: #234E52; }
+    .stat-card.executive { border-left-color: #5A3A62; }
+    .stat-card.systems { border-left-color: #38542D; }
+
+    .stat-label {
+            font-size: 12px;
+      font-weight: 600;
+      color: #6B7280;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+}
+
+    .stat-card.category .stat-label {
+            color: inherit;
+}
+
+          .stat-card.operations .stat-label { color: #2C5282; }
+    .stat-card.vendor .stat-label { color: #744210; }
+    .stat-card.projects .stat-label { color: #234E52; }
+    .stat-card.executive .stat-label { color: #5A3A62; }
+    .stat-card.systems .stat-label { color: #38542D; }
+
+          .stat-number {
+            font-size: 32px;
+      font-weight: 700;
+      color: #1F2937;
+}
+
+    .impact-box {
+            padding: 20px;
+      background-color: #FFFBEB;
+              border: 1px solid #FCD34D;
+      border-radius: 8px;
+      margin-bottom: 32px;
+}
+
+    .impact-box h4 {
+            font-size: 14px;
+      font-weight: 600;
+      color: #92400E;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+}
+
+    .impact-box p {
+            font-size: 14px;
+      color: #78350F;
+      line-height: 1.5;
+}
+
+    .section-title {
+            font-size: 16px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 16px;
+}
+
+    .empty-state {
+            text-align: center;
+      padding: 40px 20px;
+      color: #9CA3AF;
+}
+
+    .month-header {
+            font-size: 16px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 12px;
+}
+
+    .month-stats {
+            display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+      }
+
+    .tab-content {
+            display: none;
+}
+
+          .tab-content.active {
+      display: block;
+    }
+  </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="header-content">
+          <h1>Daily Wins Tracker</h1>
+      <p>Track daily wins and business impact</p>
+        </div>
+      </div>
+
+      <div class="container">
+        <!-- Entry Form -->
+        <div class="form-section">
+          <h2>Log a Win</h2>
+      <form id="entryForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category">
+              <option value="operations">Operations & Process</option>
+                  <option value="vendor">Vendor Management</option>
+                  <option value="projects">Project Management</option>
+                  <option value="executive">Executive Support</option>
+                  <option value="systems">Systems & Efficiency</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" required>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label for="description">What happened</label>
+                <textarea id="description" placeholder="e.g., Built vendor approval workflow template, established email forwarding..." required></textarea>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label for="impact">Business impact (optional)</label>
+                <input type="text" id="impact" placeholder="e.g., Saves 2 hours weekly, reduces errors by 80%">
+              </div>
+            </div>
+            <button type="submit" class="btn">+ Add Win</button>
+          </form>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('daily')">Daily</button>
+          <button class="tab-btn" onclick="switchTab('weekly')">Weekly</button>
+          <button class="tab-btn" onclick="switchTab('monthly')">Monthly</button>
+          <button class="tab-btn" onclick="switchTab('case')">Case</button>
+        </div>
+
+        <!-- Daily View -->
+        <div id="daily" class="tab-content active">
+          <h3 class="section-title">All Entries</h3>
+          <div id="dailyContent"></div>
+        </div>
+
+        <!-- Weekly View -->
+        <div id="weekly" class="tab-content">
+          <h3 class="section-title">By Week</h3>
+          <div id="weeklyContent"></div>
+        </div>
+
+        <!-- Monthly View -->
+        <div id="monthly" class="tab-content">
+          <h3 class="section-title">By Month</h3>
+          <div id="monthlyContent"></div>
+        </div>
+
+        <!-- Case View -->
+        <div id="case" class="tab-content">
+          <h3 class="section-title">Your Review Case</h3>
+      <div id="caseContent"></div>
+    </div>
+      </div>
+
+      <script>
+        const categories = {
+          operations: 'Operations & Process',
+          vendor: 'Vendor Management',
+          projects: 'Project Management',
+          executive: 'Executive Support',
+          systems: 'Systems & Efficiency'
+    };
+
+    const categoryColors = {
+            operations: '#2C5282',
+                    vendor: '#744210',
+                    projects: '#234E52',
+                    executive: '#5A3A62',
+                    systems: '#38542D'
+              };
+
+    // Initial data
+    const initialEntries = [
+{ id: 1, category: 'systems', description: 'Built ChatGPT automation workflow for Facebook posting with approval gate before publishing', impact: 'Solved social media gap during vendor unavailability; 3 posts daily at 9am/noon/3pm starting 8/14', date: '2026-08-13' },
+{ id: 2, category: 'operations', description: 'Monitored spending on Home Depot and Amazon accounts', impact: 'Maintained cost visibility and financial oversight', date: '2026-08-14' },
+{ id: 3, category: 'systems', description: 'Implemented website design changes per Aeron\'s requests', impact: 'Updated digital presence per business direction', date: '2026-08-14' },
+{ id: 4, category: 'executive', description: 'Established end-of-day reporting cadence as requested', impact: 'Created accountability and communication framework for EA role', date: '2026-08-14' },
+{ id: 5, category: 'projects', description: 'Clarified realtor outreach campaign scope with Aeron (1,000 vs 50)', impact: 'Aligned on campaign scale and resource requirements', date: '2026-08-14' },
+{ id: 6, category: 'executive', description: 'Documented social media response protocol for Punch Out Pros', impact: 'Established guidelines for brand voice consistency and response standards', date: '2026-08-14' },
+{ id: 7, category: 'vendor', description: 'Contacted Fox 45 for local TV commercial spot inquiry (email, call, form submission)', impact: 'Initiated media outreach for brand visibility', date: '2026-08-14' },
+{ id: 8, category: 'vendor', description: 'Researched local Baltimore-area direct mail vendors', impact: 'Building vendor options for AHB campaign', date: '2026-08-14' },
+{ id: 9, category: 'executive', description: 'Requirements gathering session with Aeron on direct mail strategy specifics', impact: 'Aligned on campaign specs and preferences before vendor selection', date: '2026-08-14' },
+{ id: 10, category: 'vendor', description: 'Direct mail and commercial research across multiple vendors', impact: 'Narrowed vendor selection options for AHB campaign', date: '2026-08-17' },
+{ id: 11, category: 'vendor', description: 'Email correspondence with direct mail vendors for pricing and service details', impact: 'Building decision matrix for vendor selection', date: '2026-08-17' },
+{ id: 12, category: 'systems', description: 'Automation troubleshooting for realtor outreach workflows', impact: 'Optimizing email and lead nurturing efficiency', date: '2026-08-17' },
+{ id: 13, category: 'systems', description: 'Webpage design optimization for conversion and user experience', impact: 'Improved digital presence and site performance', date: '2026-08-17' },
+{ id: 14, category: 'executive', description: 'Created and posted social media content for Punch Out Pros', impact: 'Maintained brand visibility across platforms', date: '2026-08-17' },
+{ id: 15, category: 'executive', description: 'Triaged and directed customer inquiry to Aeron for handling', impact: 'Streamlined customer communication flow and response time', date: '2026-08-17' },
+{ id: 16, category: 'projects', description: 'Completed 4 Seller\'s Information Sheets from Kelly Crossland', impact: 'Accelerated transaction readiness for AHB deals', date: '2026-08-18' },
+{ id: 17, category: 'projects', description: 'Extracted and compiled 1,000 realtor contacts for email campaign', impact: 'Campaign list ready for deployment', date: '2026-08-18' },
+{ id: 18, category: 'executive', description: 'Reviewed inbox task queue and requested prioritization guidance from Aeron', impact: 'Identified workflow bottlenecks and clarified task sequencing', date: '2026-08-18' },
+{ id: 19, category: 'systems', description: 'Researched Facebook posting methods to hide personal name/branding on company posts', impact: 'Solving brand consistency issue for Punch Out Pros social presence', date: '2026-08-18' },
+{ id: 20, category: 'vendor', description: 'Responded to direct mail vendors with follow-up on pricing requests', impact: 'Moving vendor selection forward for AHB campaign', date: '2026-08-18' },
+{ id: 21, category: 'systems', description: 'Researched free automation tools and methods for realtor email outreach', impact: 'Exploring scalable, zero-cost solutions for lead nurturing', date: '2026-08-18' },
+{ id: 22, category: 'executive', description: 'Proactive check-in with Yoana (purchasing) to identify any blockers or issues', impact: 'Confirmed purchasing operations running smoothly; maintained team communication', date: '2026-08-18' },
+{ id: 23, category: 'projects', description: 'Executed realtor outreach email campaign with 50+ personalized emails to realtors about punch list services', impact: 'Launched broad market outreach to real estate professionals; initiated lead generation for AHB partnerships', date: '2026-07-22' },
+{ id: 24, category: 'operations', description: 'Addressed Amazon business account access issue and responded to account protection notices', impact: 'Resolved account access concerns; maintained communication with payment processor regarding business account status', date: '2026-08-05' },
+{ id: 25, category: 'systems', description: 'Deployed Alberti Home Buyers website with Astro framework, complete page hierarchy, responsive layouts, and GitHub Actions CI/CD pipeline', impact: 'Launched professional web presence for AHB with 7 pages, automated deployment workflow, and reusable component architecture', date: '2026-08-17' }
+    ];
+
+    let entries = [];
+
+    // Load from localStorage or use initial data
+    function loadEntries() {
+            const saved = localStorage.getItem('winsTrackerData');
+      if (saved) {
+        entries = JSON.parse(saved);
+      } else {
+        entries = [...initialEntries];
+        saveEntries();
+      }
+    }
+
+    function saveEntries() {
+            localStorage.setItem('winsTrackerData', JSON.stringify(entries));
+    }
+
+    function formatDate(dateStr) {
+            return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric'
+              });
+    }
+
+    function getWeekNumber(date) {
+            const d = new Date(date + 'T00:00:00');
+      const firstDay = new Date(d.getFullYear(), 0, 1);
+      const pastDaysOfYear = (d - firstDay) / 86400000;
+      return Math.ceil((pastDaysOfYear + firstDay.getDay() + 1) / 7);
+    }
+
+    function getMonthKey(date) {
+            const d = new Date(date + 'T00:00:00');
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    }
+
+    function createEntryCard(entry) {
+            return `
+        <div class="entry-card ${entry.category}">
+                        <div class="entry-content">
+                          <span class="entry-category">${categories[entry.category]}</span>
+                          <div class="entry-description">${entry.description}</div>
+                          ${entry.impact ? `<div class="entry-impact">Impact: ${entry.impact}</div>` : ''}
+                        </div>
+                        <button class="btn-delete" onclick="deleteEntry(${entry.id})">✕</button>
+                      </div>
+                    `;
+                                                                               }
+
+    function deleteEntry(id) {
+            if (confirm('Delete this entry?')) {
+        entries = entries.filter(e => e.id !== id);
+        saveEntries();
+        renderAll();
+            }
+    }
+
+    function renderDaily() {
+            const sorted = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
+      if (sorted.length === 0) {
+        document.getElementById('dailyContent').innerHTML = '<div class="empty-state">No wins logged yet. Start tracking today!</div>';
+        return;
+      }
+
+      let html = '';
+      let currentDate = '';
+      sorted.forEach(entry => {
+                if (entry.date !== currentDate) {
+                  currentDate = entry.date;
+                  html += `<div class="date-label">${formatDate(entry.date)}</div>`;
+    }
+        html += createEntryCard(entry);
+    });
+      document.getElementById('dailyContent').innerHTML = html;
+}
+
+    function renderWeekly() {
+            const weeks = {};
+      entries.forEach(entry => {
+                const week = getWeekNumber(entry.date);
+                const key = `${entry.date.substring(0, 4)}-W${week}`;
+        if (!weeks[key]) weeks[key] = [];
+        weeks[key].push(entry);
+        });
+
+      const sorted = Object.entries(weeks).sort((a, b) => b[0].localeCompare(a[0]));
+
+      if (sorted.length === 0) {
+        document.getElementById('weeklyContent').innerHTML = '<div class="empty-state">No entries yet.</div>';
+        return;
+}
+
+      let html = '';
+      sorted.forEach(([week, items]) => {
+        html += `
+          <button class="week-header" onclick="toggleWeek('${week}')">
+            <span>${week} (${items.length} wins)</span>
+            <span>▼</span>
+          </button>
+          <div id="week-${week}" class="week-content" style="display:none;">
+            ${items.map(entry => createEntryCard(entry)).join('')}
+          </div>
+        `;
+});
+      document.getElementById('weeklyContent').innerHTML = html;
+}
+
+    function toggleWeek(week) {
+      const el = document.getElementById(`week-${week}`);
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+    function renderMonthly() {
+      const months = {};
+      entries.forEach(entry => {
+        const month = getMonthKey(entry.date);
+        if (!months[month]) months[month] = [];
+        months[month].push(entry);
+        });
+
+      const sorted = Object.entries(months).sort((a, b) => b[0].localeCompare(a[0]));
+
+      if (sorted.length === 0) {
+        document.getElementById('monthlyContent').innerHTML = '<div class="empty-state">No entries yet.</div>';
+        return;
+}
+
+      let html = '';
+      sorted.forEach(([month, items]) => {
+        const [year, monthNum] = month.split('-');
+        const monthName = new Date(year, parseInt(monthNum) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        const catStats = {};
+        Object.keys(categories).forEach(cat => {
+          catStats[cat] = items.filter(i => i.category === cat).length;
+});
+
+        html += `<h4 class="month-header">${monthName}</h4>`;
+        html += `<div class="month-stats">`;
+        Object.entries(categories).forEach(([cat, label]) => {
+          const count = catStats[cat];
+          html += `
+            <div class="stat-card category ${cat}">
+              <div class="stat-label">${label}</div>
+              <div class="stat-number">${count}</div>
+            </div>
+          `;
+});
+        html += `</div>`;
+        html += items.map(entry => createEntryCard(entry)).join('');
+});
+      document.getElementById('monthlyContent').innerHTML = html;
+}
+
+    function renderCase() {
+      if (entries.length === 0) {
+        document.getElementById('caseContent').innerHTML = '<div class="empty-state">Start logging wins to build your case.</div>';
+        return;
+}
+
+      const cats = {};
+      Object.keys(categories).forEach(cat => {
+        cats[cat] = entries.filter(e => e.category === cat);
+});
+
+      const statements = [];
+      Object.entries(cats).forEach(([cat, items]) => {
+                if (items.length > 0) {
+                  statements.push(`Delivered ${items.length} ${categories[cat].toLowerCase()} improvements`);
+        }
+        });
+
+      let html = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Wins</div>
+                    <div class="stat-number">${entries.length}</div>
+          </div>
+      `;
+
+      Object.entries(cats).forEach(([cat, items]) => {
+        html += `
+          <div class="stat-card category ${cat}">
+            <div class="stat-label">${categories[cat]}</div>
+            <div class="stat-number">${items.length}</div>
+          </div>
+        `;
+});
+
+      html += `</div>`;
+      html += `
+        <div class="impact-box">
+          <h4>📈 Impact Summary</h4>
+          <p>${statements.slice(0, 4).join(' • ')}</p>
+        </div>
+      `;
+
+      Object.entries(cats).forEach(([cat, items]) => {
+        if (items.length > 0) {
+          html += `<h4 class="section-title" style="color: ${categoryColors[cat]};">${categories[cat]} (${items.length})</h4>`;
+          html += items.map(entry => createEntryCard(entry)).join('');
+}
+});
+
+      document.getElementById('caseContent').innerHTML = html;
+}
+
+    function renderAll() {
+      renderDaily();
+      renderWeekly();
+      renderMonthly();
+      renderCase();
+}
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      event.target.classList.add('active');
+}
+
+    // Form submission
+    document.getElementById('entryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const category = document.getElementById('category').value;
+      const date = document.getElementById('date').value;
+      const description = document.getElementById('description').value;
+      const impact = document.getElementById('impact').value;
+
+      if (description.trim()) {
+        entries.push({
+          id: Date.now(),
+          category,
+          date,
+          description,
+          impact
+});
+        saveEntries();
+        renderAll();
+
+        this.reset();
+        document.getElementById('date').valueAsDate = new Date();
+}
+});
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('date').value = today;
+      loadEntries();
+      renderAll();
+});
+  </script>
+</body>
+</html>
