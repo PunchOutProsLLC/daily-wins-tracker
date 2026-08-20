@@ -1,747 +1,516 @@
 <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Wins Tracker</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Wins Tracker</title>
+<style>
+  :root{
+    --navy:#1e293b;
+    --navy-2:#0f172a;
+    --bg:#ffffff;
+    --card:#f5f6f8;
+    --border:#e5e7eb;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --vendor:#b45309;
+    --project:#0f766e;
+    --executive:#7c3aed;
+    --systems:#15803d;
+    --operations:#334155;
+    --accent:#1e293b;
+    --danger:#ef4444;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:var(--bg);}
+  header{background:var(--navy);color:#fff;padding:28px 24px;}
+  header h1{margin:0 0 4px 0;font-size:26px;}
+  header p{margin:0;color:#cbd5e1;font-size:14px;}
+  .wrap{max-width:900px;margin:0 auto;padding:24px;}
+  .card{background:var(--card);border-radius:10px;padding:20px;margin-bottom:24px;}
+  .card h2{margin:0 0 16px 0;font-size:16px;}
+  .row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+  .field{flex:1;min-width:180px;}
+  label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+  select,input[type=date],input[type=text],textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;background:#fff;
+  }
+  textarea{resize:vertical;min-height:70px;}
+  button.primary{
+    background:var(--navy);color:#fff;border:none;border-radius:6px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;
+  }
+  button.primary:hover{background:var(--navy-2);}
+  button.small{
+    background:#fff;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;color:var(--text);
+  }
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+  .tabs button{background:none;border:none;padding:10px 14px;font-size:14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;}
+  .tabs button.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:600;}
+  .date-heading{font-size:13px;color:var(--muted);margin:18px 0 8px 0;font-weight:600;}
+  .entry{
+    background:#fff;border-left:4px solid var(--operations);border-radius:6px;padding:12px 14px;margin-bottom:10px;position:relative;
+  }
+  .entry.vendor{border-left-color:var(--vendor);}
+  .entry.projects{border-left-color:var(--project);}
+  .entry.executive{border-left-color:var(--executive);}
+  .entry.systems{border-left-color:var(--systems);}
+  .entry.operations{border-left-color:var(--operations);}
+  .entry .cat{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+  .entry.vendor .cat{color:var(--vendor);}
+  .entry.projects .cat{color:var(--project);}
+  .entry.executive .cat{color:var(--executive);}
+  .entry.systems .cat{color:var(--systems);}
+  .entry.operations .cat{color:var(--operations);}
+  .entry .what{margin:4px 0;font-size:14px;}
+  .entry .impact{font-size:13px;color:var(--muted);font-style:italic;}
+  .entry .del{position:absolute;top:10px;right:12px;background:none;border:none;color:#c7cbd1;cursor:pointer;font-size:14px;}
+  .entry .del:hover{color:var(--danger);}
+  .empty{color:var(--muted);font-size:14px;padding:12px 0;}
+  .who-toggle{display:flex;gap:8px;margin-bottom:14px;}
+  .who-toggle button{flex:1;padding:8px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-size:13px;}
+  .who-toggle button.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .task{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+  .task.done{opacity:.55;}
+  .task-top{display:flex;align-items:flex-start;gap:10px;}
+  .task-top input[type=checkbox]{margin-top:3px;}
+  .task-text{flex:1;font-size:14px;}
+  .task-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+  .task-text.done{text-decoration:line-through;}
+  .comments{margin:8px 0 4px 26px;border-left:2px solid var(--border);padding-left:10px;}
+  .comment{font-size:13px;margin-bottom:6px;}
+  .comment b{color:var(--navy);}
+  .comment-add{display:flex;gap:6px;margin:8px 0 4px 26px;}
+  .comment-add input{flex:1;padding:6px 8px;font-size:12px;border:1px solid var(--border);border-radius:5px;}
+  .comment-add button{white-space:nowrap;}
+  .sync-status{font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .sync-status.err{color:var(--danger);}
+  .badge{display:inline-block;background:var(--navy);color:#fff;border-radius:10px;padding:2px 8px;font-size:11px;margin-left:6px;}
+  .section-title{display:flex;align-items:center;justify-content:space-between;}
+</style>
+</head>
+<body>
 
-    body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background-color: #ffffff;
-              color: #1F2937;
-}
+<header>
+  <h1>Daily Wins Tracker</h1>
+  <p>Track daily wins and business impact — shared with Aeron</p>
+</header>
 
-    .header {
-            background-color: #1F2937;
-      color: #ffffff;
-            padding: 32px 24px;
-      border-bottom: 1px solid #E5E7EB;
-        }
+<div class="wrap">
 
-    .header-content {
-              max-width: 1200px;
-      margin: 0 auto;
-}
+  <div id="syncStatus" class="sync-status">Connecting…</div>
 
-    .header h1 {
-            font-size: 28px;
-      font-weight: 600;
-      margin-bottom: 8px;
-}
-
-    .header p {
-            font-size: 14px;
-      color: #D1D5DB;
-      }
-
-    .container {
-            max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px;
-}
-
-    .form-section {
-            background-color: #F3F4F6;
-            border: 1px solid #E5E7EB;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 32px;
-}
-
-    .form-section h2 {
-            font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: #1F2937;
-}
-
-    .form-row {
-            display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-}
-
-    .form-row.full {
-      grid-template-columns: 1fr;
-    }
-
-    .form-group {
-            display: flex;
-      flex-direction: column;
-}
-
-    .form-group label {
-            font-size: 12px;
-      font-weight: 600;
-      color: #6B7280;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-}
-
-    .form-group input,
-          .form-group select,
-          .form-group textarea {
-            padding: 8px 12px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      font-size: 14px;
-      font-family: inherit;
-}
-
-    .form-group textarea {
-            min-height: 60px;
-      resize: vertical;
-      padding: 10px 12px;
-}
-
-    .btn {
-            display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background-color: #1F2937;
-      color: #ffffff;
-            border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-}
-
-    .btn:hover {
-            background-color: #111827;
-}
-
-    .btn-secondary {
-            background-color: transparent;
-      color: #6B7280;
-      padding: 8px 16px;
-      border-radius: 6px;
-}
-
-    .btn-secondary:hover {
-            background-color: #F3F4F6;
-      }
-
-    .btn-delete {
-            background-color: transparent;
-      color: #D1D5DB;
-            padding: 4px;
-      border: none;
-}
-
-    .btn-delete:hover {
-            color: #EF4444;
-      }
-
-          .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-      border-bottom: 1px solid #E5E7EB;
-      padding-bottom: 12px;
-    }
-
-    .tab-btn {
-            padding: 8px 16px;
-      background-color: transparent;
-      color: #6B7280;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-}
-
-    .tab-btn.active {
-      background-color: #1F2937;
-      color: #ffffff;
-      }
-
-    .tab-btn:hover:not(.active) {
-      background-color: #F3F4F6;
-        }
-
-    .entry-card {
-              display: flex;
-      gap: 12px;
-      padding: 12px;
-      background-color: #F9FAFB;
-              border-left: 4px solid;
-      border-radius: 6px;
-      margin-bottom: 8px;
-    }
-
-    .entry-card.operations { border-left-color: #2C5282; }
-    .entry-card.vendor { border-left-color: #744210; }
-    .entry-card.projects { border-left-color: #234E52; }
-    .entry-card.executive { border-left-color: #5A3A62; }
-    .entry-card.systems { border-left-color: #38542D; }
-
-    .entry-content {
-            flex: 1;
-      min-width: 0;
-}
-
-    .entry-category {
-            font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-      display: block;
-}
-
-    .entry-card.operations .entry-category { color: #2C5282; }
-    .entry-card.vendor .entry-category { color: #744210; }
-    .entry-card.projects .entry-category { color: #234E52; }
-    .entry-card.executive .entry-category { color: #5A3A62; }
-    .entry-card.systems .entry-category { color: #38542D; }
-
-          .entry-description {
-            font-size: 14px;
-      color: #1F2937;
-      margin-bottom: 6px;
-      line-height: 1.4;
-}
-
-    .entry-impact {
-            font-size: 13px;
-      color: #6B7280;
-      font-style: italic;
-}
-
-    .date-label {
-            font-size: 12px;
-      font-weight: 600;
-      color: #6B7280;
-      margin-top: 16px;
-      margin-bottom: 8px;
-}
-
-    .week-header {
-            width: 100%;
-      text-align: left;
-      padding: 12px;
-      background-color: #F3F4F6;
-              border: 1px solid #E5E7EB;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #1F2937;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-}
-
-    .week-header:hover {
-            background-color: #E5E7EB;
-      }
-
-    .week-content {
-            padding-top: 12px;
-}
-
-    .stats-grid {
-            display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-      }
-
-    .stat-card {
-            padding: 20px;
-      background-color: #F3F4F6;
-              border-radius: 8px;
-      border: 1px solid #E5E7EB;
-        }
-
-    .stat-card.category {
-      border-left: 4px solid;
-      }
-
-    .stat-card.operations { border-left-color: #2C5282; }
-    .stat-card.vendor { border-left-color: #744210; }
-    .stat-card.projects { border-left-color: #234E52; }
-    .stat-card.executive { border-left-color: #5A3A62; }
-    .stat-card.systems { border-left-color: #38542D; }
-
-    .stat-label {
-            font-size: 12px;
-      font-weight: 600;
-      color: #6B7280;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-}
-
-    .stat-card.category .stat-label {
-            color: inherit;
-}
-
-          .stat-card.operations .stat-label { color: #2C5282; }
-    .stat-card.vendor .stat-label { color: #744210; }
-    .stat-card.projects .stat-label { color: #234E52; }
-    .stat-card.executive .stat-label { color: #5A3A62; }
-    .stat-card.systems .stat-label { color: #38542D; }
-
-          .stat-number {
-            font-size: 32px;
-      font-weight: 700;
-      color: #1F2937;
-}
-
-    .impact-box {
-            padding: 20px;
-      background-color: #FFFBEB;
-              border: 1px solid #FCD34D;
-      border-radius: 8px;
-      margin-bottom: 32px;
-}
-
-    .impact-box h4 {
-            font-size: 14px;
-      font-weight: 600;
-      color: #92400E;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-}
-
-    .impact-box p {
-            font-size: 14px;
-      color: #78350F;
-      line-height: 1.5;
-}
-
-    .section-title {
-            font-size: 16px;
-      font-weight: 600;
-      color: #1F2937;
-      margin-bottom: 16px;
-}
-
-    .empty-state {
-            text-align: center;
-      padding: 40px 20px;
-      color: #9CA3AF;
-}
-
-    .month-header {
-            font-size: 16px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
-}
-
-    .month-stats {
-            display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-      }
-
-    .tab-content {
-            display: none;
-}
-
-          .tab-content.active {
-      display: block;
-    }
-  </style>
-    </head>
-    <body>
-      <div class="header">
-        <div class="header-content">
-          <h1>Daily Wins Tracker</h1>
-      <p>Track daily wins and business impact</p>
-        </div>
+  <div class="card">
+    <h2>Log a Win</h2>
+    <div class="row">
+      <div class="field">
+        <label>Category</label>
+        <select id="category">
+          <option value="operations">Operations &amp; Process</option>
+          <option value="vendor">Vendor Management</option>
+          <option value="projects">Project Management</option>
+          <option value="executive">Executive Support</option>
+          <option value="systems">Systems &amp; Efficiency</option>
+        </select>
       </div>
-
-      <div class="container">
-        <!-- Entry Form -->
-        <div class="form-section">
-          <h2>Log a Win</h2>
-      <form id="entryForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="category">Category</label>
-            <select id="category">
-              <option value="operations">Operations & Process</option>
-                  <option value="vendor">Vendor Management</option>
-                  <option value="projects">Project Management</option>
-                  <option value="executive">Executive Support</option>
-                  <option value="systems">Systems & Efficiency</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="date">Date</label>
-                <input type="date" id="date" required>
-              </div>
-            </div>
-            <div class="form-row full">
-              <div class="form-group">
-                <label for="description">What happened</label>
-                <textarea id="description" placeholder="e.g., Built vendor approval workflow template, established email forwarding..." required></textarea>
-              </div>
-            </div>
-            <div class="form-row full">
-              <div class="form-group">
-                <label for="impact">Business impact (optional)</label>
-                <input type="text" id="impact" placeholder="e.g., Saves 2 hours weekly, reduces errors by 80%">
-              </div>
-            </div>
-            <button type="submit" class="btn">+ Add Win</button>
-          </form>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('daily')">Daily</button>
-          <button class="tab-btn" onclick="switchTab('weekly')">Weekly</button>
-          <button class="tab-btn" onclick="switchTab('monthly')">Monthly</button>
-          <button class="tab-btn" onclick="switchTab('case')">Case</button>
-        </div>
-
-        <!-- Daily View -->
-        <div id="daily" class="tab-content active">
-          <h3 class="section-title">All Entries</h3>
-          <div id="dailyContent"></div>
-        </div>
-
-        <!-- Weekly View -->
-        <div id="weekly" class="tab-content">
-          <h3 class="section-title">By Week</h3>
-          <div id="weeklyContent"></div>
-        </div>
-
-        <!-- Monthly View -->
-        <div id="monthly" class="tab-content">
-          <h3 class="section-title">By Month</h3>
-          <div id="monthlyContent"></div>
-        </div>
-
-        <!-- Case View -->
-        <div id="case" class="tab-content">
-          <h3 class="section-title">Your Review Case</h3>
-      <div id="caseContent"></div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="entryDate">
+      </div>
     </div>
+    <div class="row">
+      <div class="field" style="min-width:100%">
+        <label>What Happened</label>
+        <textarea id="whatHappened" placeholder="e.g., Built vendor approval workflow template, established email forwarding..."></textarea>
       </div>
+    </div>
+    <div class="row">
+      <div class="field" style="min-width:100%">
+        <label>Business Impact (optional)</label>
+        <input type="text" id="impact" placeholder="e.g., Saves 2 hours weekly, reduces errors by 80%">
+      </div>
+    </div>
+    <button class="primary" id="addWinBtn">+ Add Win</button>
+  </div>
 
-      <script>
-        const categories = {
-          operations: 'Operations & Process',
-          vendor: 'Vendor Management',
-          projects: 'Project Management',
-          executive: 'Executive Support',
-          systems: 'Systems & Efficiency'
-    };
+  <div class="tabs">
+    <button class="tab-btn active" data-view="daily">Daily</button>
+    <button class="tab-btn" data-view="weekly">Weekly</button>
+    <button class="tab-btn" data-view="monthly">Monthly</button>
+    <button class="tab-btn" data-view="case">Case</button>
+  </div>
 
-    const categoryColors = {
-            operations: '#2C5282',
-                    vendor: '#744210',
-                    projects: '#234E52',
-                    executive: '#5A3A62',
-                    systems: '#38542D'
-              };
+  <div class="card">
+    <h2>All Entries</h2>
+    <div id="entriesView"></div>
+  </div>
 
-    // Initial data
-    const initialEntries = [
-{ id: 1, category: 'systems', description: 'Built ChatGPT automation workflow for Facebook posting with approval gate before publishing', impact: 'Solved social media gap during vendor unavailability; 3 posts daily at 9am/noon/3pm starting 8/14', date: '2026-08-13' },
-{ id: 2, category: 'operations', description: 'Monitored spending on Home Depot and Amazon accounts', impact: 'Maintained cost visibility and financial oversight', date: '2026-08-14' },
-{ id: 3, category: 'systems', description: 'Implemented website design changes per Aeron\'s requests', impact: 'Updated digital presence per business direction', date: '2026-08-14' },
-{ id: 4, category: 'executive', description: 'Established end-of-day reporting cadence as requested', impact: 'Created accountability and communication framework for EA role', date: '2026-08-14' },
-{ id: 5, category: 'projects', description: 'Clarified realtor outreach campaign scope with Aeron (1,000 vs 50)', impact: 'Aligned on campaign scale and resource requirements', date: '2026-08-14' },
-{ id: 6, category: 'executive', description: 'Documented social media response protocol for Punch Out Pros', impact: 'Established guidelines for brand voice consistency and response standards', date: '2026-08-14' },
-{ id: 7, category: 'vendor', description: 'Contacted Fox 45 for local TV commercial spot inquiry (email, call, form submission)', impact: 'Initiated media outreach for brand visibility', date: '2026-08-14' },
-{ id: 8, category: 'vendor', description: 'Researched local Baltimore-area direct mail vendors', impact: 'Building vendor options for AHB campaign', date: '2026-08-14' },
-{ id: 9, category: 'executive', description: 'Requirements gathering session with Aeron on direct mail strategy specifics', impact: 'Aligned on campaign specs and preferences before vendor selection', date: '2026-08-14' },
-{ id: 10, category: 'vendor', description: 'Direct mail and commercial research across multiple vendors', impact: 'Narrowed vendor selection options for AHB campaign', date: '2026-08-17' },
-{ id: 11, category: 'vendor', description: 'Email correspondence with direct mail vendors for pricing and service details', impact: 'Building decision matrix for vendor selection', date: '2026-08-17' },
-{ id: 12, category: 'systems', description: 'Automation troubleshooting for realtor outreach workflows', impact: 'Optimizing email and lead nurturing efficiency', date: '2026-08-17' },
-{ id: 13, category: 'systems', description: 'Webpage design optimization for conversion and user experience', impact: 'Improved digital presence and site performance', date: '2026-08-17' },
-{ id: 14, category: 'executive', description: 'Created and posted social media content for Punch Out Pros', impact: 'Maintained brand visibility across platforms', date: '2026-08-17' },
-{ id: 15, category: 'executive', description: 'Triaged and directed customer inquiry to Aeron for handling', impact: 'Streamlined customer communication flow and response time', date: '2026-08-17' },
-{ id: 16, category: 'projects', description: 'Completed 4 Seller\'s Information Sheets from Kelly Crossland', impact: 'Accelerated transaction readiness for AHB deals', date: '2026-08-18' },
-{ id: 17, category: 'projects', description: 'Extracted and compiled 1,000 realtor contacts for email campaign', impact: 'Campaign list ready for deployment', date: '2026-08-18' },
-{ id: 18, category: 'executive', description: 'Reviewed inbox task queue and requested prioritization guidance from Aeron', impact: 'Identified workflow bottlenecks and clarified task sequencing', date: '2026-08-18' },
-{ id: 19, category: 'systems', description: 'Researched Facebook posting methods to hide personal name/branding on company posts', impact: 'Solving brand consistency issue for Punch Out Pros social presence', date: '2026-08-18' },
-{ id: 20, category: 'vendor', description: 'Responded to direct mail vendors with follow-up on pricing requests', impact: 'Moving vendor selection forward for AHB campaign', date: '2026-08-18' },
-{ id: 21, category: 'systems', description: 'Researched free automation tools and methods for realtor email outreach', impact: 'Exploring scalable, zero-cost solutions for lead nurturing', date: '2026-08-18' },
-{ id: 22, category: 'executive', description: 'Proactive check-in with Yoana (purchasing) to identify any blockers or issues', impact: 'Confirmed purchasing operations running smoothly; maintained team communication', date: '2026-08-18' },
-{ id: 23, category: 'projects', description: 'Executed realtor outreach email campaign with 50+ personalized emails to realtors about punch list services', impact: 'Launched broad market outreach to real estate professionals; initiated lead generation for AHB partnerships', date: '2026-07-22' },
-{ id: 24, category: 'operations', description: 'Addressed Amazon business account access issue and responded to account protection notices', impact: 'Resolved account access concerns; maintained communication with payment processor regarding business account status', date: '2026-08-05' },
-{ id: 25, category: 'systems', description: 'Deployed Alberti Home Buyers website with Astro framework, complete page hierarchy, responsive layouts, and GitHub Actions CI/CD pipeline', impact: 'Launched professional web presence for AHB with 7 pages, automated deployment workflow, and reusable component architecture', date: '2026-08-17' }
-    ];
+  <div class="card">
+    <div class="section-title">
+      <h2>Tasks &amp; Notes <span style="font-weight:400;color:var(--muted)">— Aeron ↔ Michelle</span></h2>
+    </div>
+    <div class="who-toggle">
+      <button id="whoMichelle" class="active">I'm Michelle</button>
+      <button id="whoAeron">I'm Aeron</button>
+    </div>
+    <div class="row">
+      <div class="field" style="min-width:100%">
+        <label>Add a task or note</label>
+        <input type="text" id="taskInput" placeholder="e.g., Please follow up with Fox 45 by Friday">
+      </div>
+    </div>
+    <button class="primary" id="addTaskBtn">+ Add Task/Note</button>
+    <div id="tasksView" style="margin-top:18px;"></div>
+  </div>
 
-    let entries = [];
+</div>
 
-    // Load from localStorage or use initial data
-    function loadEntries() {
-            const saved = localStorage.getItem('winsTrackerData');
-      if (saved) {
-        entries = JSON.parse(saved);
-      } else {
-        entries = [...initialEntries];
-        saveEntries();
-      }
+<script type="module">
+  // ---- FIREBASE CONFIG ----
+  // Paste the config object from your Firebase project's web app settings here.
+  // Until this is filled in with real values, the page runs in local-only mode
+  // (same as before — data stays in this browser only).
+  const firebaseConfig = {
+    apiKey: "AIzaSyCB52beUZZHncyfXMRHfmmuuBEd_dcT2zA",
+    authDomain: "punchoutpros-2db07.firebaseapp.com",
+    projectId: "punchoutpros-2db07",
+    storageBucket: "punchoutpros-2db07.firebasestorage.app",
+    messagingSenderId: "968851513356",
+    appId: "1:968851513356:web:075f8de87681e8f076ce29"
+  };
+
+  const statusEl = document.getElementById('syncStatus');
+  let db, winsCol, tasksCol;
+  let live = false;
+  let fb = null; // holds the dynamically-imported firestore functions when live
+
+  async function tryConnectFirebase() {
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'PASTE_ME') {
+      statusEl.textContent = "Firebase isn't configured yet — running in local-only mode (data stays in this browser). See setup instructions from Claude.";
+      statusEl.classList.add('err');
+      return false;
     }
-
-    function saveEntries() {
-            localStorage.setItem('winsTrackerData', JSON.stringify(entries));
+    try {
+      const [{ initializeApp }, firestoreMod] = await Promise.all([
+        import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js")
+      ]);
+      fb = firestoreMod;
+      const app = initializeApp(firebaseConfig);
+      db = fb.getFirestore(app);
+      winsCol = fb.collection(db, "wins");
+      tasksCol = fb.collection(db, "tasks");
+      // sanity check the connection actually works before trusting it
+      await fb.getDocs(winsCol);
+      return true;
+    } catch (e) {
+      console.error('Firebase connection failed:', e);
+      statusEl.textContent = "Couldn't connect to the shared tracker (" + (e && e.message ? e.message : 'unknown error') + ") — running in local-only mode.";
+      statusEl.classList.add('err');
+      return false;
     }
+  }
 
-    function formatDate(dateStr) {
-            return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric'
-              });
+  const CATEGORY_LABELS = {
+    operations: "Operations & Process",
+    vendor: "Vendor Management",
+    projects: "Project Management",
+    executive: "Executive Support",
+    systems: "Systems & Efficiency"
+  };
+
+  // ---------- LOCAL FALLBACK (used only if Firebase isn't configured, or as a one-time migration source) ----------
+  function getLocalWins() {
+    try { return JSON.parse(localStorage.getItem('winsTrackerData') || '[]'); }
+    catch { return []; }
+  }
+
+  let winsCache = [];
+  let tasksCache = [];
+  let currentView = 'daily';
+  let currentWho = 'Michelle';
+
+  async function migrateLocalIfNeeded() {
+    if (!live) return;
+    const already = localStorage.getItem('winsTrackerMigrated');
+    if (already) return;
+    const local = getLocalWins();
+    if (local.length === 0) { localStorage.setItem('winsTrackerMigrated', '1'); return; }
+    const existing = await fb.getDocs(winsCol);
+    if (!existing.empty) { localStorage.setItem('winsTrackerMigrated', '1'); return; }
+    statusEl.textContent = `Migrating ${local.length} existing entries to the shared tracker…`;
+    for (const w of local) {
+      await fb.addDoc(winsCol, {
+        category: w.category || 'operations',
+        date: w.date || new Date().toISOString().slice(0,10),
+        whatHappened: w.whatHappened || w.text || '',
+        impact: w.impact || '',
+        createdAt: fb.serverTimestamp()
+      });
     }
+    localStorage.setItem('winsTrackerMigrated', '1');
+  }
 
-    function getWeekNumber(date) {
-            const d = new Date(date + 'T00:00:00');
-      const firstDay = new Date(d.getFullYear(), 0, 1);
-      const pastDaysOfYear = (d - firstDay) / 86400000;
-      return Math.ceil((pastDaysOfYear + firstDay.getDay() + 1) / 7);
-    }
+  function fmtDateHeading(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  }
 
-    function getMonthKey(date) {
-            const d = new Date(date + 'T00:00:00');
-      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-    }
+  function renderEntries() {
+    const el = document.getElementById('entriesView');
+    if (winsCache.length === 0) { el.innerHTML = '<div class="empty">No entries yet.</div>'; return; }
 
-    function createEntryCard(entry) {
-            return `
-        <div class="entry-card ${entry.category}">
-                        <div class="entry-content">
-                          <span class="entry-category">${categories[entry.category]}</span>
-                          <div class="entry-description">${entry.description}</div>
-                          ${entry.impact ? `<div class="entry-impact">Impact: ${entry.impact}</div>` : ''}
-                        </div>
-                        <button class="btn-delete" onclick="deleteEntry(${entry.id})">✕</button>
-                      </div>
-                    `;
-                                                                               }
+    const sorted = [...winsCache].sort((a,b)=> b.date.localeCompare(a.date));
 
-    function deleteEntry(id) {
-            if (confirm('Delete this entry?')) {
-        entries = entries.filter(e => e.id !== id);
-        saveEntries();
-        renderAll();
-            }
-    }
-
-    function renderDaily() {
-            const sorted = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
-      if (sorted.length === 0) {
-        document.getElementById('dailyContent').innerHTML = '<div class="empty-state">No wins logged yet. Start tracking today!</div>';
-        return;
-      }
-
+    if (currentView === 'daily') {
       let html = '';
-      let currentDate = '';
-      sorted.forEach(entry => {
-                if (entry.date !== currentDate) {
-                  currentDate = entry.date;
-                  html += `<div class="date-label">${formatDate(entry.date)}</div>`;
-    }
-        html += createEntryCard(entry);
-    });
-      document.getElementById('dailyContent').innerHTML = html;
-}
-
-    function renderWeekly() {
-            const weeks = {};
-      entries.forEach(entry => {
-                const week = getWeekNumber(entry.date);
-                const key = `${entry.date.substring(0, 4)}-W${week}`;
-        if (!weeks[key]) weeks[key] = [];
-        weeks[key].push(entry);
-        });
-
-      const sorted = Object.entries(weeks).sort((a, b) => b[0].localeCompare(a[0]));
-
-      if (sorted.length === 0) {
-        document.getElementById('weeklyContent').innerHTML = '<div class="empty-state">No entries yet.</div>';
-        return;
-}
-
-      let html = '';
-      sorted.forEach(([week, items]) => {
-        html += `
-          <button class="week-header" onclick="toggleWeek('${week}')">
-            <span>${week} (${items.length} wins)</span>
-            <span>▼</span>
-          </button>
-          <div id="week-${week}" class="week-content" style="display:none;">
-            ${items.map(entry => createEntryCard(entry)).join('')}
-          </div>
-        `;
-});
-      document.getElementById('weeklyContent').innerHTML = html;
-}
-
-    function toggleWeek(week) {
-      const el = document.getElementById(`week-${week}`);
-      el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}
-
-    function renderMonthly() {
-      const months = {};
-      entries.forEach(entry => {
-        const month = getMonthKey(entry.date);
-        if (!months[month]) months[month] = [];
-        months[month].push(entry);
-        });
-
-      const sorted = Object.entries(months).sort((a, b) => b[0].localeCompare(a[0]));
-
-      if (sorted.length === 0) {
-        document.getElementById('monthlyContent').innerHTML = '<div class="empty-state">No entries yet.</div>';
-        return;
-}
-
-      let html = '';
-      sorted.forEach(([month, items]) => {
-        const [year, monthNum] = month.split('-');
-        const monthName = new Date(year, parseInt(monthNum) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-        const catStats = {};
-        Object.keys(categories).forEach(cat => {
-          catStats[cat] = items.filter(i => i.category === cat).length;
-});
-
-        html += `<h4 class="month-header">${monthName}</h4>`;
-        html += `<div class="month-stats">`;
-        Object.entries(categories).forEach(([cat, label]) => {
-          const count = catStats[cat];
-          html += `
-            <div class="stat-card category ${cat}">
-              <div class="stat-label">${label}</div>
-              <div class="stat-number">${count}</div>
-            </div>
-          `;
-});
-        html += `</div>`;
-        html += items.map(entry => createEntryCard(entry)).join('');
-});
-      document.getElementById('monthlyContent').innerHTML = html;
-}
-
-    function renderCase() {
-      if (entries.length === 0) {
-        document.getElementById('caseContent').innerHTML = '<div class="empty-state">Start logging wins to build your case.</div>';
-        return;
-}
-
-      const cats = {};
-      Object.keys(categories).forEach(cat => {
-        cats[cat] = entries.filter(e => e.category === cat);
-});
-
-      const statements = [];
-      Object.entries(cats).forEach(([cat, items]) => {
-                if (items.length > 0) {
-                  statements.push(`Delivered ${items.length} ${categories[cat].toLowerCase()} improvements`);
+      let lastDate = null;
+      for (const w of sorted) {
+        if (w.date !== lastDate) {
+          html += `<div class="date-heading">${fmtDateHeading(w.date)}</div>`;
+          lastDate = w.date;
         }
-        });
+        html += entryHtml(w);
+      }
+      el.innerHTML = html;
+    } else if (currentView === 'weekly' || currentView === 'monthly') {
+      const groups = {};
+      for (const w of sorted) {
+        const d = new Date(w.date + 'T00:00:00');
+        let key;
+        if (currentView === 'monthly') {
+          key = d.toLocaleDateString('en-US', { month:'long', year:'numeric' });
+        } else {
+          const weekStart = new Date(d);
+          weekStart.setDate(d.getDate() - d.getDay());
+          key = 'Week of ' + weekStart.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+        }
+        (groups[key] = groups[key] || []).push(w);
+      }
+      let html = '';
+      for (const key of Object.keys(groups)) {
+        html += `<div class="date-heading">${key} <span class="badge">${groups[key].length}</span></div>`;
+        for (const w of groups[key]) html += entryHtml(w);
+      }
+      el.innerHTML = html;
+    } else if (currentView === 'case') {
+      // Case: a narrative summary grouped by category
+      const byCat = {};
+      for (const w of sorted) (byCat[w.category] = byCat[w.category] || []).push(w);
+      let html = '';
+      for (const cat of Object.keys(byCat)) {
+        html += `<div class="date-heading">${CATEGORY_LABELS[cat] || cat} <span class="badge">${byCat[cat].length}</span></div>`;
+        for (const w of byCat[cat]) html += entryHtml(w, true);
+      }
+      el.innerHTML = html;
+    }
+  }
 
-      let html = `
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Total Wins</div>
-                    <div class="stat-number">${entries.length}</div>
-          </div>
-      `;
+  function entryHtml(w, showDate=false) {
+    return `
+      <div class="entry ${w.category}">
+        <button class="del" data-id="${w.id}" title="Delete">✕</button>
+        <div class="cat">${CATEGORY_LABELS[w.category] || w.category}</div>
+        <div class="what">${escapeHtml(w.whatHappened)}${showDate ? ' <span class="task-meta">('+w.date+')</span>' : ''}</div>
+        ${w.impact ? `<div class="impact">Impact: ${escapeHtml(w.impact)}</div>` : ''}
+      </div>`;
+  }
 
-      Object.entries(cats).forEach(([cat, items]) => {
-        html += `
-          <div class="stat-card category ${cat}">
-            <div class="stat-label">${categories[cat]}</div>
-            <div class="stat-number">${items.length}</div>
-          </div>
-        `;
-});
+  function escapeHtml(s) {
+    return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
 
-      html += `</div>`;
+  function renderTasks() {
+    const el = document.getElementById('tasksView');
+    if (tasksCache.length === 0) { el.innerHTML = '<div class="empty">No tasks or notes yet.</div>'; return; }
+    const sorted = [...tasksCache].sort((a,b)=> (b.createdAtMs||0) - (a.createdAtMs||0));
+    let html = '';
+    for (const t of sorted) {
       html += `
-        <div class="impact-box">
-          <h4>📈 Impact Summary</h4>
-          <p>${statements.slice(0, 4).join(' • ')}</p>
-        </div>
-      `;
+        <div class="task ${t.status === 'done' ? 'done' : ''}">
+          <div class="task-top">
+            <input type="checkbox" data-id="${t.id}" class="task-check" ${t.status === 'done' ? 'checked' : ''}>
+            <div style="flex:1">
+              <div class="task-text ${t.status === 'done' ? 'done' : ''}">${escapeHtml(t.text)}</div>
+              <div class="task-meta">added by ${escapeHtml(t.author || 'someone')}</div>
+            </div>
+            <button class="small del-task" data-id="${t.id}">✕</button>
+          </div>
+          <div class="comments">
+            ${(t.comments || []).map(c => `<div class="comment"><b>${escapeHtml(c.author)}:</b> ${escapeHtml(c.text)}</div>`).join('')}
+          </div>
+          <div class="comment-add">
+            <input type="text" placeholder="Add a comment…" class="comment-input" data-id="${t.id}">
+            <button class="small comment-btn" data-id="${t.id}">Reply</button>
+          </div>
+        </div>`;
+    }
+    el.innerHTML = html;
 
-      Object.entries(cats).forEach(([cat, items]) => {
-        if (items.length > 0) {
-          html += `<h4 class="section-title" style="color: ${categoryColors[cat]};">${categories[cat]} (${items.length})</h4>`;
-          html += items.map(entry => createEntryCard(entry)).join('');
-}
-});
+    el.querySelectorAll('.task-check').forEach(cb => {
+      cb.addEventListener('change', async (e) => {
+        const id = e.target.dataset.id;
+        if (!live) return;
+        await fb.updateDoc(fb.doc(db, 'tasks', id), { status: e.target.checked ? 'done' : 'open' });
+      });
+    });
+    el.querySelectorAll('.del-task').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.target.dataset.id;
+        if (!live) return;
+        await fb.deleteDoc(fb.doc(db, 'tasks', id));
+      });
+    });
+    el.querySelectorAll('.comment-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.target.dataset.id;
+        const input = el.querySelector(`.comment-input[data-id="${id}"]`);
+        const text = input.value.trim();
+        if (!text || !live) return;
+        await fb.updateDoc(fb.doc(db, 'tasks', id), {
+          comments: fb.arrayUnion({ author: currentWho, text, createdAt: new Date().toISOString() })
+        });
+        input.value = '';
+      });
+    });
+  }
 
-      document.getElementById('caseContent').innerHTML = html;
-}
+  // ---- wire up form ----
+  document.getElementById('entryDate').valueAsDate = new Date();
 
-    function renderAll() {
-      renderDaily();
-      renderWeekly();
-      renderMonthly();
-      renderCase();
-}
+  document.getElementById('addWinBtn').addEventListener('click', async () => {
+    const category = document.getElementById('category').value;
+    const date = document.getElementById('entryDate').value;
+    const whatHappened = document.getElementById('whatHappened').value.trim();
+    const impact = document.getElementById('impact').value.trim();
+    if (!whatHappened) { alert('Please describe what happened.'); return; }
 
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tab).classList.add('active');
-      event.target.classList.add('active');
-}
+    if (live) {
+      await fb.addDoc(winsCol, { category, date, whatHappened, impact, createdAt: fb.serverTimestamp() });
+    } else {
+      const local = getLocalWins();
+      local.push({ id: Date.now().toString(), category, date, whatHappened, impact });
+      localStorage.setItem('winsTrackerData', JSON.stringify(local));
+      winsCache = local;
+      renderEntries();
+    }
+    document.getElementById('whatHappened').value = '';
+    document.getElementById('impact').value = '';
+    document.getElementById('category').value = 'operations';
+    document.getElementById('entryDate').valueAsDate = new Date();
+  });
 
-    // Form submission
-    document.getElementById('entryForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+  document.getElementById('entriesView').addEventListener('click', async (e) => {
+    if (e.target.classList.contains('del')) {
+      const id = e.target.dataset.id;
+      if (live) {
+        await fb.deleteDoc(fb.doc(db, 'wins', id));
+      } else {
+        const local = getLocalWins().filter(w => w.id !== id);
+        localStorage.setItem('winsTrackerData', JSON.stringify(local));
+        winsCache = local;
+        renderEntries();
+      }
+    }
+  });
 
-      const category = document.getElementById('category').value;
-      const date = document.getElementById('date').value;
-      const description = document.getElementById('description').value;
-      const impact = document.getElementById('impact').value;
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentView = btn.dataset.view;
+      renderEntries();
+    });
+  });
 
-      if (description.trim()) {
-        entries.push({
-          id: Date.now(),
-          category,
-          date,
-          description,
-          impact
-});
-        saveEntries();
-        renderAll();
+  document.getElementById('whoMichelle').addEventListener('click', () => {
+    currentWho = 'Michelle';
+    document.getElementById('whoMichelle').classList.add('active');
+    document.getElementById('whoAeron').classList.remove('active');
+  });
+  document.getElementById('whoAeron').addEventListener('click', () => {
+    currentWho = 'Aeron';
+    document.getElementById('whoAeron').classList.add('active');
+    document.getElementById('whoMichelle').classList.remove('active');
+  });
 
-        this.reset();
-        document.getElementById('date').valueAsDate = new Date();
-}
-});
+  function getLocalTasks() {
+    try { return JSON.parse(localStorage.getItem('winsTrackerTasks') || '[]'); }
+    catch { return []; }
+  }
+  function saveLocalTasks() {
+    localStorage.setItem('winsTrackerTasks', JSON.stringify(tasksCache));
+  }
 
-    // Initialize
-    window.addEventListener('DOMContentLoaded', function() {
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('date').value = today;
-      loadEntries();
-      renderAll();
-});
-  </script>
+  document.getElementById('addTaskBtn').addEventListener('click', async () => {
+    const input = document.getElementById('taskInput');
+    const text = input.value.trim();
+    if (!text) return;
+    if (live) {
+      await fb.addDoc(tasksCol, { text, author: currentWho, status: 'open', comments: [], createdAt: fb.serverTimestamp() });
+    } else {
+      tasksCache.push({ id: Date.now().toString(), text, author: currentWho, status: 'open', comments: [], createdAtMs: Date.now() });
+      saveLocalTasks();
+      renderTasks();
+    }
+    input.value = '';
+  });
+
+  // local-mode task interactions (checkbox / delete / comment) — delegated once, guarded by !live
+  document.getElementById('tasksView').addEventListener('click', (e) => {
+    if (live) return; // live mode handled by listeners attached in renderTasks()
+    if (e.target.classList.contains('del-task')) {
+      tasksCache = tasksCache.filter(t => t.id !== e.target.dataset.id);
+      saveLocalTasks(); renderTasks();
+    } else if (e.target.classList.contains('comment-btn')) {
+      const id = e.target.dataset.id;
+      const input = document.querySelector(`.comment-input[data-id="${id}"]`);
+      const text = input.value.trim();
+      if (!text) return;
+      const t = tasksCache.find(t => t.id === id);
+      if (t) { t.comments = t.comments || []; t.comments.push({ author: currentWho, text }); saveLocalTasks(); renderTasks(); }
+    }
+  });
+  document.getElementById('tasksView').addEventListener('change', (e) => {
+    if (live) return;
+    if (e.target.classList.contains('task-check')) {
+      const t = tasksCache.find(t => t.id === e.target.dataset.id);
+      if (t) { t.status = e.target.checked ? 'done' : 'open'; saveLocalTasks(); renderTasks(); }
+    }
+  });
+
+  // ---- startup ----
+  async function start() {
+    live = await tryConnectFirebase();
+
+    if (live) {
+      await migrateLocalIfNeeded();
+      statusEl.textContent = 'Connected — synced live with Aeron.';
+      statusEl.classList.remove('err');
+
+      fb.onSnapshot(fb.query(winsCol, fb.orderBy('date', 'desc')), snap => {
+        winsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderEntries();
+      }, err => {
+        statusEl.textContent = 'Connection error: ' + err.message;
+        statusEl.classList.add('err');
+      });
+
+      fb.onSnapshot(tasksCol, snap => {
+        tasksCache = snap.docs.map(d => {
+          const data = d.data();
+          return { id: d.id, ...data, createdAtMs: data.createdAt?.toMillis ? data.createdAt.toMillis() : 0 };
+        });
+        renderTasks();
+      });
+    } else {
+      winsCache = getLocalWins();
+      tasksCache = getLocalTasks();
+      renderEntries();
+      renderTasks();
+    }
+  }
+
+  start();
+</script>
 </body>
 </html>
