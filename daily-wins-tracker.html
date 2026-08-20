@@ -395,7 +395,10 @@
         if (!newText) return;
         if (!live) return; // local mode handled by delegated listener below
         await fb.updateDoc(fb.doc(db, 'tasks', id), { text: newText });
+        const t = tasksCache.find(t => t.id === id);
+        if (t) t.text = newText;
         editingTaskIds.delete(id);
+        renderTasks();
       });
     });
     el.querySelectorAll('.task-edit-input').forEach(inp => {
