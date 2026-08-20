@@ -33,7 +33,13 @@
   .field{flex:1;min-width:180px;}
   label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
   select,input[type=date],input[type=text],textarea{
-    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;background:#fff;
+    width:100%;max-width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;background:#fff;
+  }
+  @media (max-width:480px){
+    .wrap{padding:16px;}
+    .card{padding:16px;}
+    .row{flex-direction:column;gap:14px;}
+    .field{min-width:0;width:100%;}
   }
   textarea{resize:vertical;min-height:70px;}
   button.primary{
@@ -319,21 +325,30 @@
     return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  let editingTaskIds = new Set();
+
   function renderTasks() {
     const el = document.getElementById('tasksView');
     if (tasksCache.length === 0) { el.innerHTML = '<div class="empty">No tasks or notes yet.</div>'; return; }
     const sorted = [...tasksCache].sort((a,b)=> (b.createdAtMs||0) - (a.createdAtMs||0));
     let html = '';
     for (const t of sorted) {
+      const isEditing = editingTaskIds.has(t.id);
       html += `
         <div class="task ${t.status === 'done' ? 'done' : ''}">
           <div class="task-top">
             <input type="checkbox" data-id="${t.id}" class="task-check" ${t.status === 'done' ? 'checked' : ''}>
             <div style="flex:1">
-              <div class="task-text ${t.status === 'done' ? 'done' : ''}">${escapeHtml(t.text)}</div>
+              ${isEditing
+                ? `<input type="text" class="task-edit-input" data-id="${t.id}" value="${escapeHtml(t.text)}">`
+                : `<div class="task-text ${t.status === 'done' ? 'done' : ''}">${escapeHtml(t.text)}</div>`}
               <div class="task-meta">added by ${escapeHtml(t.author || 'someone')}</div>
             </div>
-            <button class="small del-task" data-id="${t.id}">✕</button>
+            ${isEditing
+              ? `<button class="small save-task" data-id="${t.id}">Save</button>
+                 <button class="small cancel-edit-task" data-id="${t.id}">Cancel</button>`
+              : `<button class="small edit-task" data-id="${t.id}">Edit</button>
+                 <button class="small del-task" data-id="${t.id}">✕</button>`}
           </div>
           <div class="comments">
             ${(t.comments || []).map(c => `<div class="comment"><b>${escapeHtml(c.author)}:</b> ${escapeHtml(c.text)}</div>`).join('')}
@@ -358,6 +373,40 @@
         const id = e.target.dataset.id;
         if (!live) return;
         await fb.deleteDoc(fb.doc(db, 'tasks', id));
+      });
+    });
+    el.querySelectorAll('.edit-task').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        editingTaskIds.add(e.target.dataset.id);
+        renderTasks();
+      });
+    });
+    el.querySelectorAll('.cancel-edit-task').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        editingTaskIds.delete(e.target.dataset.id);
+        renderTasks();
+      });
+    });
+    el.querySelectorAll('.save-task').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.target.dataset.id;
+        const input = el.querySelector(`.task-edit-input[data-id="${id}"]`);
+        const newText = input.value.trim();
+        if (!newText) return;
+        if (!live) return; // local mode handled by delegated listener below
+        await fb.updateDoc(fb.doc(db, 'tasks', id), { text: newText });
+        editingTaskIds.delete(id);
+      });
+    });
+    el.querySelectorAll('.task-edit-input').forEach(inp => {
+      inp.addEventListener('keydown', (e) => {
+        const id = e.target.dataset.id;
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          el.querySelector(`.save-task[data-id="${id}"]`)?.click();
+        } else if (e.key === 'Escape') {
+          el.querySelector(`.cancel-edit-task[data-id="${id}"]`)?.click();
+        }
       });
     });
     el.querySelectorAll('.comment-btn').forEach(btn => {
@@ -468,6 +517,15 @@
       if (!text) return;
       const t = tasksCache.find(t => t.id === id);
       if (t) { t.comments = t.comments || []; t.comments.push({ author: currentWho, text }); saveLocalTasks(); renderTasks(); }
+    } else if (e.target.classList.contains('save-task')) {
+      const id = e.target.dataset.id;
+      const input = document.querySelector(`.task-edit-input[data-id="${id}"]`);
+      const newText = input.value.trim();
+      if (!newText) return;
+      const t = tasksCache.find(t => t.id === id);
+      if (t) { t.text = newText; saveLocalTasks(); }
+      editingTaskIds.delete(id);
+      renderTasks();
     }
   });
   document.getElementById('tasksView').addEventListener('change', (e) => {
